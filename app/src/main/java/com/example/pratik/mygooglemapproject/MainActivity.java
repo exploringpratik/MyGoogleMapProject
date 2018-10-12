@@ -34,15 +34,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private boolean mLocationPermissionGranted = false;
-    private double latitude;
-    private double longitude;
-    private FusedLocationProviderClient mFusedLocationClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         checkMapServices();
 
     }
@@ -54,28 +51,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getUserCoordinates() {
-        Log.d(TAG, "getUserCoordinates: called");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            return;
-        }
-        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    Location location = task.getResult();
-                    if (location != null) {
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-                        Toast.makeText(MainActivity.this, "latitude " + latitude + "longitude " + longitude, Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-            }
-        });
-
-    }
 
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -174,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void afterPermission() {
-        getUserCoordinates();
         Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
