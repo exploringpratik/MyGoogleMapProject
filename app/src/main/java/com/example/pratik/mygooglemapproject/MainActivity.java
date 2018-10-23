@@ -34,12 +34,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private boolean mLocationPermissionGranted = false;
-
+    private double latitude;
+    private double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getUserCoordinates();
         checkMapServices();
 
     }
@@ -50,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
 
 
     private void buildAlertMessageNoGps() {
@@ -154,10 +155,44 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putDouble("LATITUDE", latitude);
+                bundle.putDouble("LONGITUDE", longitude);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
         Toast.makeText(MainActivity.this, "It worked", Toast.LENGTH_LONG).show();
+    }
+
+
+    public void getUserCoordinates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful()) {
+                    Location location = task.getResult();
+                    if (location != null) {
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        Toast.makeText(MainActivity.this, "latitude " + latitude + "longitude " + longitude, Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "onComplete: latitude" + latitude);
+                    }
+
+                } else
+                    Toast.makeText(MainActivity.this, "Couldn't get your location", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
     }
 }
